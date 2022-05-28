@@ -20,23 +20,86 @@ renderer.link = function (href, title, text) {
 const App = () => {
     const [markdown, setMarkdown] = useState(placeholder)
     const [scrollTop, setScrollTop] = useState(0)
+    const [editMode, setEditMode] = useState(false)
+    const [readerMode, setReaderMode] = useState(false)
 
     function onScroll(event) {
         setScrollTop(event.target.scrollTop)
     }
 
+    function onToggleEditMode() {
+        setEditMode(!editMode)
+        setReaderMode(false)
+        console.log('editMode = ' + editMode + '; readerMode = ' + readerMode)
+    }
+
+    function onToggleReaderMode() {
+        setReaderMode(!readerMode)
+        setEditMode(false)
+        console.log('editMode = ' + editMode + '; readerMode = ' + readerMode)
+    }
+
+    function onSaveAsHTML(){
+        const content = marked(markdown);
+        const fileName = "export.html";
+
+        if (navigator.msSaveBlob) { // IE
+            navigator.msSaveBlob(new Blob([content], { type: 'text/html;charset=utf-8;' }), fileName);
+        } else {
+            const a = document.createElement('a');
+            a.href = 'data:text/html;charset=utf-8,' + encodeURIComponent(content);
+            a.download = fileName;
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        }
+    }
+
+    function onOpenFromDisk(){
+        const input = document.body.appendChild(
+            document.createElement("input")
+        );
+        input.setAttribute("type", "file");
+        input.setAttribute("accept", ".md, .txt");
+
+        input.addEventListener("change", ({ target }) => {
+            if (target.files && target.files[0]) {
+                const fileReader = new FileReader();
+                fileReader.onload = event => {
+                    setMarkdown(event.target.result);
+                    document.body.removeChild(input);
+                }
+                fileReader.readAsText(target.files[0]);
+            }
+        });
+        input.click();
+    }
+
     return (
         <div className="wrapper">
+            <Navbar
+                editMode={editMode}
+                readerMode={readerMode}
+                onToggleEditMode={onToggleEditMode}
+                onToggleReaderMode={onToggleReaderMode}
+                onSaveAsHTML={onSaveAsHTML}
+                onOpenFromDisk={onOpenFromDisk}
+            />
             <Editor
                 markdown={markdown}
                 onChange={setMarkdown}
                 scrollTop={scrollTop}
                 onScroll={onScroll}
+                editMode={editMode}
+                readerMode={readerMode}
             />
             <Preview
                 markdown={markdown}
                 scrollTop={scrollTop}
                 onScroll={onScroll}
+                editMode={editMode}
+                readerMode={readerMode}
             />
         </div>);
 };
@@ -49,7 +112,11 @@ const Editor = (props) => {
 
     return (
         <div
-            className="editor">
+            className={"editor"
+                + (props.readerMode ? " hide" : '')
+                + (props.editMode ? " center" : '')
+        }
+        >
         <textarea
             ref={editorRef}
             id="editor"
@@ -68,7 +135,11 @@ const Preview = (props) => {
     }
 
     return (<div
-        className="previewer">
+        className={"previewer"
+            + (props.editMode ? " hide" : '')
+            + (props.readerMode ? " center" : '')
+    }
+    >
         <div
             ref={previewRef}
             id="previewer"
@@ -79,6 +150,27 @@ const Preview = (props) => {
             }}
         />
     </div>);
+};
+
+
+const Navbar = (props) => {
+    const editModeClassName = "fas fa-pencil-alt navbar-wrapper-icon" + (props.editMode ? " choosen" : "");
+    const readerModeClassName = "fas fa-eye navbar-wrapper-icon" + (props.readerMode ? " choosen" : "");
+    const saveAsHTMLClassName = "fas fa-download navbar-wrapper-icon";
+    const openFromDiskClassName = "fas fa-upload navbar-wrapper-icon";
+    return (
+        <nav className="navbar">
+            <div className="nav-wrapper">
+                <h1>Markdown Previewer</h1>
+            </div>
+            <div className="nav-wrapper">
+                <i className={editModeClassName} onClick={event => props.onToggleEditMode(event)}></i>
+                <i className={readerModeClassName} onClick={event => props.onToggleReaderMode(event)}></i>
+                <i className={saveAsHTMLClassName} onClick={event => props.onSaveAsHTML(event)}></i>
+                <i className={openFromDiskClassName} onClick={event => props.onOpenFromDisk(event)}></i>
+            </div>
+        </nav>
+    );
 };
 
 

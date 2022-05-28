@@ -1,12 +1,11 @@
 @import url(prism.css);
-
 :root {
     --bs-font-sans-serif: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "Liberation Sans", sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     --bs-font-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     --bold-color: rgba(0, 0, 0, .8);
-    --nav-background-color: #1e1e1e;
-    --nav-color: #b9b9b9;
-    --workspace-margin-top: 46px;
+    --nav-background-color: #eee;
+    --nav-color: #333;
+    --workspace-margin-top: 44px;
 }
 
 * {
@@ -24,8 +23,6 @@ body {
 }
 
 .wrapper {
-    position: fixed;
-    display: flex;
     z-index: 100;
     background-color: #fff;
 }
@@ -43,6 +40,7 @@ body {
     resize: none;
     border: none;
     outline: none;
+    height: 300px;
     /*font: normal normal normal 1rem/1.6 Lato, Helvetica Neue, Helvetica, sans-serif;*/
     font-family: var(--bs-font-monospace);
     font-size: 1rem;
@@ -74,6 +72,18 @@ body {
     cursor: pointer !important;
 }
 
+.previewer.hide {
+    display: none;
+}
+
+.previewer-content {
+    margin-top: 0;
+}
+
+nav h1 {
+    display: none;
+    margin: 2px 0
+}
 
 @media (min-width: 768px) {
     .wrapper {
@@ -88,6 +98,9 @@ body {
         height: 100%;
         top: 0;
     }
+    nav h1{
+        display: block;
+    }
     .editor {
         left: 0;
     }
@@ -97,13 +110,13 @@ body {
     }
     .editor.center {
         width: 100%;
-        max-width: 992px;
+        /*max-width: 992px;*/
         left: 50%;
         transform: translate(-50%, 0);
     }
     .previewer.center {
         width: 100%;
-        max-width: 992px;
+        /*max-width: 992px;*/
         right: 50%;
         transform: translate(50%, 0);
         border: none;
@@ -116,7 +129,24 @@ body {
     .navbar-wrapper-name {
         display: initial;
     }
+    .previewer-content{
+        margin-top: var(--workspace-margin-top);
+    }
 }
+
+.editor.center textarea{
+    height: calc(100vh - var(--workspace-margin-top));
+}
+
+.editor.hide {
+    display: none;
+}
+
+.previewer.center .previewer-content{
+    margin-top: var(--workspace-margin-top);
+}
+
+
 
 pre {
     background-color: #eee;
@@ -154,3 +184,35 @@ pre {
 .previewer-content img {
     max-width: 100%;
 }
+
+.navbar {
+    display: -webkit-flex;;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    z-index: 102;
+    background-color: var(--nav-background-color);
+    color: var(--nav-color);
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.09), 0 3px 5px 0 rgba(0, 0, 0, 0.08);
+}
+
+.nav-wrapper{
+    padding: 4px 25px 4px 0;
+}
+
+.navbar-wrapper-icon {
+    margin-left: 25px;
+    padding: 8px;
+    border-radius: 4px;
+    position: relative;
+    cursor: pointer;
+}
+
+.navbar-wrapper-icon:hover, .nav-wrapper .choosen {
+    background-color: #ddd;
+}
+
